@@ -51,6 +51,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static org.apache.commons.lang.StringUtils.defaultString;
+
 /**
  * @author Ray Hilton
  */
@@ -160,6 +162,11 @@ public class XCodeBuilder extends Builder {
      */
     public final Boolean provideApplicationVersion;
 
+    /**
+     * @since 1.x
+     */
+    public final String xcodebuildAction;
+
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
     public XCodeBuilder(Boolean buildIpa, Boolean generateArchive, Boolean cleanBeforeBuild, Boolean cleanTestReports, String configuration,
@@ -167,7 +174,8 @@ public class XCodeBuilder extends Builder {
     		String embeddedProfileFile, String cfBundleVersionValue, String cfBundleShortVersionStringValue, Boolean unlockKeychain,
     		String keychainName, String keychainPath, String keychainPwd, String symRoot, String xcodeWorkspaceFile,
     		String xcodeSchema, String configurationBuildDir, String codeSigningIdentity, Boolean allowFailingBuildResults,
-    		String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory) {
+    		String ipaName, Boolean provideApplicationVersion, String ipaOutputDirectory,
+            String xcodebuildAction) {
         this.buildIpa = buildIpa;
         this.generateArchive = generateArchive;
         this.sdk = sdk;
@@ -194,11 +202,12 @@ public class XCodeBuilder extends Builder {
         this.ipaName = ipaName;
         this.ipaOutputDirectory = ipaOutputDirectory;
         this.provideApplicationVersion = provideApplicationVersion;
+        this.xcodebuildAction = xcodebuildAction;
     }
 
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
-        EnvVars envs = build.getEnvironment(listener);
+        hudson.EnvVars envs = build.getEnvironment(listener);
         FilePath projectRoot = build.getWorkspace();
 
         // check that the configured tools exist
@@ -458,6 +467,7 @@ public class XCodeBuilder extends Builder {
         } else {
             xcodeReport.append(", sdk: DEFAULT");
         }
+        xcodeReport.append(". xcodebuildAction: ").append(this.xcodebuildAction);
 
         // Prioritizing workspace over project setting
         if (!StringUtils.isEmpty(xcodeWorkspaceFile)) {
@@ -484,8 +494,8 @@ public class XCodeBuilder extends Builder {
         } else {
             xcodeReport.append(", clean: NO");
         }
-        commandLine.add("build");
-        
+        commandLine.add(defaultString(this.xcodebuildAction, "build"));
+
         if(generateArchive){
             commandLine.add("archive");
             xcodeReport.append(", archive:YES");
@@ -610,7 +620,7 @@ public class XCodeBuilder extends Builder {
                 String baseName = app.getBaseName().replaceAll(" ", "_") + (shortVersion.isEmpty() ? "" : "-" + shortVersion) + (version.isEmpty() ? "" : "-" + version);
                 // If custom .ipa name pattern has been provided, use it and expand version and build date variables
                 if (! StringUtils.isEmpty(ipaName)) {
-                	EnvVars customVars = new EnvVars(
+                	hudson.EnvVars customVars = new hudson.EnvVars(
                 		"BASE_NAME", app.getBaseName().replaceAll(" ", "_"),
                 		"VERSION", version,
                 		"SHORT_VERSION", shortVersion,
