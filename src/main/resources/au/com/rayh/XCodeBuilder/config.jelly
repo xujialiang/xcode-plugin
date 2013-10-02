@@ -74,13 +74,8 @@
                 </f:optionalBlock>
             </f:entry>
 
-      <f:entry title="${%xcodebuild action?}" help="/plugin/xcode/help-action.html">
-        <select name="xcodebuildAction">
-          <f:option value="build" selected="${instance.xcodebuildAction=='build'}">build</f:option>
-          <f:option value="archive" selected="${instance.xcodebuildAction=='archive'}">archive</f:option>
-          <f:option value="test" selected="${instance.xcodebuildAction=='test'}">test</f:option>
-          <f:option value="clean" selected="${instance.xcodebuildAction=='clean'}">clean</f:option>
-        </select>
+      <f:entry title="${%xcodebuild action}" field="xcodebuildAction">
+        <f:select />
       </f:entry>
 
     </f:advanced>

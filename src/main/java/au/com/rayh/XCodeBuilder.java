@@ -35,6 +35,7 @@ import hudson.model.BuildListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.CopyOnWriteList;
+import hudson.util.ListBoxModel;
 import hudson.util.QuotedStringTokenizer;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
@@ -756,6 +757,14 @@ public class XCodeBuilder extends Builder {
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> jobType) {
             return true;
+        }
+
+        public ListBoxModel doFillXcodebuildActionItems() {
+            return new ListBoxModel()
+                    .add("build")
+                    .add("archive")
+                    .add("test")
+                    .add("clean");
         }
 
         @Override
