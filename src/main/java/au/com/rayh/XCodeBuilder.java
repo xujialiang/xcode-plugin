@@ -720,6 +720,10 @@ public class XCodeBuilder extends Builder {
                     packageCommandLine.add("--sign");
                     packageCommandLine.add(codeSigningIdentity);
                 }
+                if (!StringUtils.isEmpty(codeSigningIdentity)) {                   
+                    packageCommandLine.add("--no-strict");
+                    packageCommandLine.add(codeSigningIdentity);
+                }
 
                 returnCode = launcher.launch().envs(envs).stdout(listener).pwd(projectRoot).cmds(packageCommandLine).join();
                 if (returnCode > 0) {
